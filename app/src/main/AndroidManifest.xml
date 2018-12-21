@@ -17,9 +17,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".TestActivity"/>
         <activity android:name=".LanguageListActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/settings_language"/>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

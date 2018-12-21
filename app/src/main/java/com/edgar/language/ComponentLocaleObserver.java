@@ -28,6 +28,7 @@ public class ComponentLocaleObserver implements LocaleProvider.OnLocaleChangedLi
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     public void onCreate() {
         mResources = mComponent.getResources();
+        LocaleProvider.updateResourceLocale(mResources,LocaleProvider.getLocale());
         LocaleProvider.getInstance().registerOnLocaleChangedListener(this);
     }
 

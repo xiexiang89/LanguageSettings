@@ -5,7 +5,9 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatCheckedTextView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,6 +20,7 @@ import android.widget.TextView;
  */
 public class LanguageListActivity extends LocaleActivity {
 
+    private static final String TAG = "LocaleProvider";
     private Toolbar mToolBar;
     private ListView mLanguageListView;
     private LocaleListAdapter mLocaleListAdapter;
@@ -40,8 +43,9 @@ public class LanguageListActivity extends LocaleActivity {
     }
 
     private void setupToolBar() {
+        Log.d(TAG,"language list:"+getResources().getConfiguration().locale.toString());
+        setTitle(R.string.settings_language);
         mToolBar = findViewById(R.id.toolbar);
-        mToolBar.setTitle(R.string.settings_language);
         setSupportActionBar(mToolBar);
         mToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +58,7 @@ public class LanguageListActivity extends LocaleActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mToolBar.setTitle(getString(R.string.settings_language));
+        setTitle(getString(R.string.settings_language));
         mLocaleListAdapter.notifyDataSetChanged();
     }
 
@@ -74,7 +78,8 @@ public class LanguageListActivity extends LocaleActivity {
             } else {
                 view = convertView;
             }
-            TextView textView = view.findViewById(R.id.language_name);
+            AppCompatCheckedTextView textView = view.findViewById(R.id.language_name);
+            textView.setChecked(getItem(position).locale == LocaleProvider.getLocale());
             textView.setText(getItem(position).name);
             return view;
         }

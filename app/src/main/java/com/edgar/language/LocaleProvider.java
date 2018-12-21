@@ -6,8 +6,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.StringRes;
-import android.support.v4.util.SparseArrayCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +30,8 @@ public class LocaleProvider {
     static final String ZH_HK = "zh_HK";
     static final String ZH_TW = "zh_TW";
     static final String EN = "en";
-    static final String JA = "ja";
-    static final String KO = "ko";
+    static final String JA = "ja_JP";
+    static final String KO = "ko_KR";
 
     private static SharedPreferences sLocalePreferences;
     private static final Map<String,Integer> LOCALE_NAME_ARRAY = new HashMap<String, Integer>() {
@@ -50,7 +50,7 @@ public class LocaleProvider {
     private Resources mResource;
     private List<LocaleInfo> mLocaleList;
     private final ArrayList<OnLocaleChangedListener> mListeners = new ArrayList<>();
-    private Locale mLocale;
+    private static Locale sLocale;
 
     private static LocaleProvider sInstance;
 
@@ -76,15 +76,17 @@ public class LocaleProvider {
 
     private LocaleProvider(Context context) {
         mResource = context.getApplicationContext().getResources();
-        mLocale = getCacheLocale(context);
     }
 
     private static Locale getCacheLocale(Context context) {
-        ensureLocalePreferences(context);
-        String language = sLocalePreferences.getString(LOCALE_LANGUAGE,"");
-        String country = sLocalePreferences.getString(LOCALE_COUNTRY,"");
-        if (TextUtils.isEmpty(language)) return getSystemLocale();
-        return LocaleFactory.getLocale(language,country);
+        if (sLocale == null) {
+            ensureLocalePreferences(context);
+            String language = sLocalePreferences.getString(LOCALE_LANGUAGE,"");
+            String country = sLocalePreferences.getString(LOCALE_COUNTRY,"");
+            if (TextUtils.isEmpty(language)) return getSystemLocale();
+            sLocale = LocaleFactory.getLocale(language,country);
+        }
+        return sLocale;
     }
 
     private static void saveLocaleInfo(Locale locale) {
@@ -93,6 +95,10 @@ public class LocaleProvider {
         final String country = isSystemLocale ? "" : locale.getCountry();
         sLocalePreferences.edit().putString(LOCALE_LANGUAGE, language)
                 .putString(LOCALE_COUNTRY, country).apply();
+    }
+
+    public static Locale getLocale() {
+        return sLocale;
     }
 
     public static Locale getSystemLocale() {
@@ -111,6 +117,7 @@ public class LocaleProvider {
 
     public static Context attachBaseContext(Context base) {
         Locale locale = getCacheLocale(base);
+        Log.d(TAG,"locale info: "+locale.toString());
         if (locale == getSystemLocale()) {
             return base;
         }
@@ -121,12 +128,11 @@ public class LocaleProvider {
         } else {
             configuration.locale = locale;
         }
+        res.updateConfiguration(configuration,res.getDisplayMetrics());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return base.createConfigurationContext(configuration);
-        } else {
-            res.updateConfiguration(configuration,res.getDisplayMetrics());
-            return base;
+            base =  base.createConfigurationContext(configuration);
         }
+        return base;
     }
 
     private void initLanguageList() {
@@ -152,15 +158,11 @@ public class LocaleProvider {
         return new ArrayList<>(mLocaleList);
     }
 
-    public Locale getLocale() {
-        return mLocale;
-    }
-
     public void updateLocale(Locale locale) {
-        if (mLocale != null && mLocale.equals(locale)) {
+        if (sLocale != null && locale != getSystemLocale() && sLocale != getSystemLocale() && sLocale.equals(locale)) {
             return;
         }
-        mLocale = locale;
+        sLocale = locale;
         saveLocaleInfo(locale);
         updateResourceLocale(mResource, locale);
         dispatchOnLocaleChanged(locale);
