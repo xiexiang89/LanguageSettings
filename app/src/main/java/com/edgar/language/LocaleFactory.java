@@ -24,7 +24,7 @@ class LocaleFactory {
     };
 
     static Locale createLocale(String language, String country) {
-        country = TextUtils.isEmpty(country) ? "" : country.toUpperCase();
+        country = country == null ? "" : country.toUpperCase();
         final String localeName = generateLocaleName(language, country);
         Locale locale = LOCALE_MAP.get(localeName);
         if (locale == null) {

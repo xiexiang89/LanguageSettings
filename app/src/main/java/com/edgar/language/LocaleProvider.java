@@ -140,7 +140,7 @@ public class LocaleProvider {
         final String[] codes = mResource.getStringArray(R.array.locale_code);
         for (final String code : codes) {
             final String[] array = code.split("_");
-            Locale locale = FOLLOW_SYSTEM.equals(code) ? getSystemLocale() : LocaleFactory.createLocale(array[0], array.length == 2 ? array[1] : "");
+            Locale locale = FOLLOW_SYSTEM.equals(code) ? getSystemLocale() : LocaleFactory.createLocale(array[0], array.length == 2 ? array[1] : null);
             addLocaleInfo(LOCALE_NAME_ARRAY.get(code).intValue(), locale);
         }
     }
