@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--<string-array name="locale_array">-->
+        <!--<item>@string/follow_system</item>-->
+        <!--<item>@string/chinese_simplified</item>-->
+        <!--<item>@string/chinese_traditional</item>-->
+        <!--<item>@string/english</item>-->
+        <!--<item>@string/japanese</item>-->
+    <!--</string-array>-->
+    <!--<string-array name="locale_code_array">-->
+        <!--<item>0</item>-->
+        <!--<item>SIMPLIFIED_CHINESE</item>-->
+        <!--<item>TRADITIONAL_CHINESE</item>-->
+        <!--<item>ENGLISH</item>-->
+        <!--<item>JAPANESE</item>-->
+    <!--</string-array>-->
+</resources>

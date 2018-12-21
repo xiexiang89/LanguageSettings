@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name" translatable="false">LanguageSettings</string>
+
+    <string name="settings_language">设置语言</string>
+    <string name="follow_system">跟随系统</string>
+    <string name="chinese_simplified" translatable="false">中文(简体)</string>
+    <string name="chinese_traditional" translatable="false">中文(繁體)</string>
+    <string name="japanese" translatable="false">日本語</string>
+    <string name="english" translatable="false">英语</string>
+    <string name="korean" translatable="false">한국어</string>
+</resources>
