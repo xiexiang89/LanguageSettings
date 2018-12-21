@@ -6,11 +6,14 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.StringRes;
+import android.support.v4.util.SparseArrayCompat;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by Edgar on 2018/12/19.
@@ -18,11 +21,31 @@ import java.util.Locale;
 public class LocaleProvider {
 
     private static final String TAG = "LocaleProvider";
+    private static final String FOLLOW_SYSTEM = "0";
     private static final String LOCALE_SETTINGS_NAME = "locale_settings";
     private static final String LOCALE_LANGUAGE = "language";
     private static final String LOCALE_COUNTRY = "country";
+    static final String ZH = "zh";
+    static final String ZH_CN = "zh_CN";
+    static final String ZH_HK = "zh_HK";
+    static final String ZH_TW = "zh_TW";
+    static final String EN = "en";
+    static final String JA = "ja";
+    static final String KO = "ko";
 
     private static SharedPreferences sLocalePreferences;
+    private static final Map<String,Integer> LOCALE_NAME_ARRAY = new HashMap<String, Integer>() {
+        {
+            put(FOLLOW_SYSTEM, R.string.follow_system);
+            put(ZH, R.string.chinese_simplified);
+            put(ZH_CN, R.string.chinese_simplified);
+            put(ZH_HK, R.string.chinese_traditional);
+            put(ZH_TW, R.string.chinese_traditional);
+            put(EN, R.string.english);
+            put(JA, R.string.japanese);
+            put(KO, R.string.korean);
+        }
+    };
 
     private Resources mResource;
     private List<LocaleInfo> mLocaleList;
@@ -108,12 +131,12 @@ public class LocaleProvider {
 
     private void initLanguageList() {
         mLocaleList = new ArrayList<>();
-        addLocaleInfo(R.string.follow_system, getSystemLocale());
-        addLocaleInfo(R.string.chinese_simplified, Locale.SIMPLIFIED_CHINESE);
-        addLocaleInfo(R.string.chinese_traditional, Locale.TRADITIONAL_CHINESE);
-        addLocaleInfo(R.string.english, Locale.ENGLISH);
-        addLocaleInfo(R.string.japanese, Locale.JAPANESE);
-        addLocaleInfo(R.string.korean, Locale.KOREA);
+        final String[] codes = mResource.getStringArray(R.array.locale_code);
+        for (final String code : codes) {
+            final String[] array = code.split("_");
+            Locale locale = FOLLOW_SYSTEM.equals(code) ? getSystemLocale() : LocaleFactory.getLocale(array[0], array.length == 2 ? array[1] : "");
+            addLocaleInfo(LOCALE_NAME_ARRAY.get(code).intValue(), locale);
+        }
     }
 
     private void addLocaleInfo(@StringRes int name, Locale locale) {

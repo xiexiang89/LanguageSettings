@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="locale_code">
+        <item>0</item>
+        <item>zh_CN</item>
+        <item>zh_TW</item>
+        <item>en</item>
+        <item>ja</item>
+        <item>ko</item>
+    </string-array>
+</resources>

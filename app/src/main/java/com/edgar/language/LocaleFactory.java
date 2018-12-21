@@ -12,16 +12,18 @@ class LocaleFactory {
     static Locale getLocale(String language, String country) {
         String localeName = TextUtils.isEmpty(country) ? language : language + "_"+ country;
         switch (localeName) {
-            case "zh":
-            case "zh_CN":
+            case LocaleProvider.ZH:
+            case LocaleProvider.ZH_CN:
                 return Locale.SIMPLIFIED_CHINESE;
-            case "zh_HK":
-            case "zh_TW":
+            case LocaleProvider.ZH_HK:
+            case LocaleProvider.ZH_TW:
                 return Locale.TRADITIONAL_CHINESE;
-            case "en":
+            case LocaleProvider.EN:
                 return Locale.ENGLISH;
-            case "ja":
+            case LocaleProvider.JA:
                 return Locale.JAPANESE;
+            case LocaleProvider.KO:
+                return Locale.KOREAN;
             default:
                 return new Locale(language, country);
         }
