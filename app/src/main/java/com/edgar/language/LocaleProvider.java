@@ -84,7 +84,7 @@ public class LocaleProvider {
             String language = sLocalePreferences.getString(LOCALE_LANGUAGE,"");
             String country = sLocalePreferences.getString(LOCALE_COUNTRY,"");
             if (TextUtils.isEmpty(language)) return getSystemLocale();
-            sLocale = LocaleFactory.getLocale(language,country);
+            sLocale = LocaleFactory.createLocale(language,country);
         }
         return sLocale;
     }
@@ -140,7 +140,7 @@ public class LocaleProvider {
         final String[] codes = mResource.getStringArray(R.array.locale_code);
         for (final String code : codes) {
             final String[] array = code.split("_");
-            Locale locale = FOLLOW_SYSTEM.equals(code) ? getSystemLocale() : LocaleFactory.getLocale(array[0], array.length == 2 ? array[1] : "");
+            Locale locale = FOLLOW_SYSTEM.equals(code) ? getSystemLocale() : LocaleFactory.createLocale(array[0], array.length == 2 ? array[1] : "");
             addLocaleInfo(LOCALE_NAME_ARRAY.get(code).intValue(), locale);
         }
     }
