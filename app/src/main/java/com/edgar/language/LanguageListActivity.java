@@ -1,7 +1,7 @@
 package com.edgar.language;
 
 import android.content.Context;
-import android.content.res.Configuration;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 /**
  * Created by Edgar on 2018/12/19.
@@ -38,6 +37,8 @@ public class LanguageListActivity extends LocaleActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 LocaleProvider.LocaleInfo localeInfo = mLocaleListAdapter.getItem(position);
                 LocaleProvider.getInstance().updateLocale(localeInfo.locale);
+                startActivity(new Intent(LanguageListActivity.this
+                        , MainActivity.class));
             }
         });
     }
@@ -53,13 +54,6 @@ public class LanguageListActivity extends LocaleActivity {
                 finish();
             }
         });
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        setTitle(getString(R.string.settings_language));
-        mLocaleListAdapter.notifyDataSetChanged();
     }
 
     private class LocaleListAdapter extends ArrayAdapter<LocaleProvider.LocaleInfo> {

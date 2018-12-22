@@ -10,8 +10,6 @@ import android.support.v7.app.AppCompatActivity;
  */
 public abstract class LocaleActivity extends AppCompatActivity {
 
-    private ComponentLocaleObserver mComponentLocaleObserver = new ComponentLocaleObserver(this, getLifecycle());
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
