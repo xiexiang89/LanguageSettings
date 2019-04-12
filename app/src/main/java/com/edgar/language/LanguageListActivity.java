@@ -36,9 +36,10 @@ public class LanguageListActivity extends LocaleActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 LocaleProvider.LocaleInfo localeInfo = mLocaleListAdapter.getItem(position);
-                LocaleProvider.getInstance().updateLocale(localeInfo.locale);
-                startActivity(new Intent(LanguageListActivity.this
-                        , MainActivity.class));
+                LocaleProvider.getInstance().updateLocale(localeInfo);
+                finish();
+//                startActivity(new Intent(LanguageListActivity.this
+//                        , MainActivity.class));
             }
         });
     }
@@ -73,7 +74,7 @@ public class LanguageListActivity extends LocaleActivity {
                 view = convertView;
             }
             AppCompatCheckedTextView textView = view.findViewById(R.id.language_name);
-            textView.setChecked(getItem(position).locale == LocaleProvider.getLocale());
+            textView.setChecked(getItem(position).locale == LocaleProvider.getInstance().getLocale());
             textView.setText(getItem(position).name);
             return view;
         }

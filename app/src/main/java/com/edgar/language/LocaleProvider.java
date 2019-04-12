@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,10 +34,9 @@ public class LocaleProvider {
     static final String JA = "ja_JP";
     static final String KO = "ko_KR";
 
-    private static SharedPreferences sLocalePreferences;
+    private SharedPreferences mLocalePreferences;
     private static final Map<String,Integer> LOCALE_NAME_ARRAY = new HashMap<String, Integer>() {
         {
-            put(FOLLOW_SYSTEM, R.string.follow_system);
             put(ZH, R.string.chinese_simplified);
             put(ZH_CN, R.string.chinese_simplified);
             put(ZH_HK, R.string.chinese_traditional);
@@ -50,55 +50,68 @@ public class LocaleProvider {
     private Resources mResource;
     private List<LocaleInfo> mLocaleList;
     private final ArrayList<OnLocaleChangedListener> mListeners = new ArrayList<>();
-    private static Locale sLocale;
+    private Locale mLocale;
+    private boolean isFollowSystem;
 
-    private static LocaleProvider sInstance;
+    private static volatile LocaleProvider sInstance;
 
     public static LocaleProvider getInstance() {
-        synchronized (LocaleProvider.class) {
-            return sInstance;
-        }
-    }
-
-    public static void initialize(Context context) {
-        synchronized (LocaleProvider.class) {
-            if (sInstance == null) {
-                sInstance = new LocaleProvider(context);
+        if (sInstance == null) {
+            synchronized (LocaleProvider.class) {
+                if (sInstance == null) {
+                    sInstance = new LocaleProvider();
+                }
             }
         }
+        return sInstance;
     }
 
-    private static void ensureLocalePreferences(Context context) {
-        if (sLocalePreferences == null) {
-            sLocalePreferences = context.getSharedPreferences(LOCALE_SETTINGS_NAME, Context.MODE_PRIVATE);
-        }
-    }
-
-    private LocaleProvider(Context context) {
+    public void initialize(Context context) {
         mResource = context.getApplicationContext().getResources();
     }
 
-    private static Locale getCacheLocale(Context context) {
-        if (sLocale == null) {
-            ensureLocalePreferences(context);
-            String language = sLocalePreferences.getString(LOCALE_LANGUAGE,"");
-            String country = sLocalePreferences.getString(LOCALE_COUNTRY,"");
-            if (TextUtils.isEmpty(language)) return getSystemLocale();
-            sLocale = LocaleFactory.createLocale(language,country);
+    private void ensureLocalePreferences(Context context) {
+        if (mLocalePreferences == null) {
+            mLocalePreferences = context.getSharedPreferences(LOCALE_SETTINGS_NAME, Context.MODE_PRIVATE);
         }
-        return sLocale;
     }
 
-    private static void saveLocaleInfo(Locale locale) {
-        final boolean isSystemLocale = locale == getSystemLocale();
-        final String language = isSystemLocale ? "" : locale.getLanguage();
-        final String country = isSystemLocale ? "" : locale.getCountry();
-        sLocalePreferences.edit().putString(LOCALE_LANGUAGE, language)
+    private LocaleProvider() { }
+
+    private Locale getCacheLocale(Context context) {
+        if (mLocale == null) {
+            ensureLocalePreferences(context);
+            String language = mLocalePreferences.getString(LOCALE_LANGUAGE,"");
+            String country = mLocalePreferences.getString(LOCALE_COUNTRY,"");
+            if (TextUtils.isEmpty(language)) {
+                mLocale = getSystemLocale();
+                isFollowSystem = true;
+            } else {
+                mLocale = LocaleFactory.createLocale(language,country);
+            }
+        }
+        return mLocale;
+    }
+
+    private void saveLocaleInfo(Locale locale, boolean isFollowSystem) {
+        final String language = isFollowSystem ? "" : locale.getLanguage();
+        final String country = isFollowSystem ? "" : locale.getCountry();
+        mLocalePreferences.edit().putString(LOCALE_LANGUAGE, language)
                 .putString(LOCALE_COUNTRY, country).apply();
     }
 
-    public static Locale getLocale() {
-        return sLocale;
+    public Locale getLocale() {
+        return mLocale;
+    }
+
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG,"System switch locale:"+newConfig.locale.toString());
+        Locale locale = CompatUtils.getLocale(newConfig);
+        updateResourceLocale(Resources.getSystem(),locale);
+        if (isFollowSystem) {
+            mLocale = locale;
+            updateResourceLocale(mResource,locale);
+        }
     }
 
     public static Locale getSystemLocale() {
@@ -115,12 +128,9 @@ public class LocaleProvider {
         res.updateConfiguration(configuration, res.getDisplayMetrics());
     }
 
-    public static Context attachBaseContext(Context base) {
+    public Context attachBaseContext(Context base) {
         Locale locale = getCacheLocale(base);
         Log.d(TAG,"locale info: "+locale.toString());
-        if (locale == getSystemLocale()) {
-            return base;
-        }
         final Resources res = base.getResources();
         Configuration configuration = res.getConfiguration();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -140,13 +150,10 @@ public class LocaleProvider {
         final String[] codes = mResource.getStringArray(R.array.locale_code);
         for (final String code : codes) {
             final String[] array = code.split("_");
-            Locale locale = FOLLOW_SYSTEM.equals(code) ? getSystemLocale() : LocaleFactory.createLocale(array[0], array.length == 2 ? array[1] : null);
-            addLocaleInfo(LOCALE_NAME_ARRAY.get(code).intValue(), locale);
+            Locale locale = LocaleFactory.createLocale(array[0], array.length == 2 ? array[1] : null);
+            mLocaleList.add(new LocaleInfo(LOCALE_NAME_ARRAY.get(code), locale,false));
         }
-    }
-
-    private void addLocaleInfo(@StringRes int name, Locale locale) {
-        mLocaleList.add(new LocaleInfo(name, locale));
+        mLocaleList = Collections.unmodifiableList(mLocaleList);
     }
 
     public List<LocaleInfo> getLocaleList() {
@@ -155,17 +162,21 @@ public class LocaleProvider {
                 initLanguageList();
             }
         }
-        return new ArrayList<>(mLocaleList);
+        List<LocaleInfo> localeInfos = new ArrayList<>();
+        localeInfos.add(new LocaleInfo(R.string.follow_system,getSystemLocale(),true));
+        localeInfos.addAll(mLocaleList);
+        return localeInfos;
     }
 
-    public void updateLocale(Locale locale) {
-        if (sLocale != null && locale != getSystemLocale() && sLocale != getSystemLocale() && sLocale.equals(locale)) {
-            return;
+    public void updateLocale(LocaleInfo localeInfo) {
+        final Locale locale = localeInfo.locale;
+        isFollowSystem = localeInfo.isFollowSystem;
+        if (locale != getSystemLocale() || locale != mLocale) {
+            mLocale = locale;
+            saveLocaleInfo(locale,localeInfo.isFollowSystem);
+            updateResourceLocale(mResource, locale);
+            dispatchOnLocaleChanged(locale);
         }
-        sLocale = locale;
-        saveLocaleInfo(locale);
-        updateResourceLocale(mResource, locale);
-        dispatchOnLocaleChanged(locale);
     }
 
     public void registerOnLocaleChangedListener(OnLocaleChangedListener listener) {
@@ -195,10 +206,12 @@ public class LocaleProvider {
 
         public final @StringRes int name;
         public final Locale locale;
+        public final boolean isFollowSystem;
 
-        private LocaleInfo(@StringRes int name, Locale locale) {
+        private LocaleInfo(@StringRes int name, Locale locale,boolean isFollowSystem) {
             this.name = name;
             this.locale = locale;
+            this.isFollowSystem = isFollowSystem;
         }
     }
 

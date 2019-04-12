@@ -8,7 +8,7 @@ import android.widget.Button;
 
 import java.util.Locale;
 
-public class MainActivity extends LocaleActivity implements LocaleProvider.OnLocaleChangedListener {
+public class MainActivity extends LocaleActivity {
 
     private Button mSettingLanguageBtn;
 
@@ -17,7 +17,8 @@ public class MainActivity extends LocaleActivity implements LocaleProvider.OnLoc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mSettingLanguageBtn = findViewById(R.id.settings_language);
-        LocaleProvider.getInstance().registerOnLocaleChangedListener(this);
+        setTitle(R.string.settings_language);
+        mSettingLanguageBtn.setText(getString(R.string.settings_language));
     }
 
     public void onClick(View view) {
@@ -25,20 +26,9 @@ public class MainActivity extends LocaleActivity implements LocaleProvider.OnLoc
     }
 
     @Override
-    protected void onDestroy() {
-        LocaleProvider.getInstance().unregisterOnLocaleChangedListener(this);
-        super.onDestroy();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mSettingLanguageBtn.setText(getString(R.string.settings_language));
-    }
-
-    @Override
     public void onLocaleChanged(Locale locale) {
-        LocaleProvider.updateResourceLocale(getResources(),locale);
-        onConfigurationChanged(getResources().getConfiguration());
+        super.onLocaleChanged(locale);
+        setTitle(R.string.settings_language);
+        mSettingLanguageBtn.setText(R.string.settings_language);
     }
 }
