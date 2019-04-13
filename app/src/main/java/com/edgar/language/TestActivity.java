@@ -1,5 +1,7 @@
 package com.edgar.language;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -14,11 +16,12 @@ import java.util.Locale;
 public class TestActivity extends LocaleActivity {
 
     private Button mSettingLanguageBtn;
+    private AlertDialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_test);
         mSettingLanguageBtn = findViewById(R.id.settings_language);
         setTitle(getString(R.string.settings_language));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -35,13 +38,24 @@ public class TestActivity extends LocaleActivity {
     }
 
     public void onClick(View view) {
-        startActivity(new Intent(this,LanguageListActivity.class));
+        switch (view.getId()) {
+            case R.id.settings_language:
+                startActivity(new Intent(this,LanguageListActivity.class));
+                break;
+            case R.id.show_dialog:
+                if (mDialog == null) {
+                    mDialog = new AlertDialog.Builder(this).create();
+                }
+                mDialog.setMessage(getString(R.string.settings_language));
+                mDialog.show();
+                break;
+        }
     }
 
     @Override
     public void onLocaleChanged(Locale locale) {
-        super.onLocaleChanged(locale);
         setTitle(getString(R.string.settings_language));
+        mSettingLanguageBtn.setTextLocale(locale);
         mSettingLanguageBtn.setText(R.string.settings_language);
     }
 }

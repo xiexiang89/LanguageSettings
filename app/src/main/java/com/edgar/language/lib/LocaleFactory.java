@@ -1,6 +1,6 @@
-package com.edgar.language;
+package com.edgar.language.lib;
 
-import android.text.TextUtils;
+import com.edgar.language.lib.LocaleManager;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -13,13 +13,12 @@ class LocaleFactory {
 
     private static final Map<String, Locale> LOCALE_MAP = new HashMap<String, Locale>() {
         {
-            put(LocaleProvider.ZH, Locale.SIMPLIFIED_CHINESE);
-            put(LocaleProvider.ZH_CN, Locale.SIMPLIFIED_CHINESE);
-            put(LocaleProvider.ZH_TW, Locale.TRADITIONAL_CHINESE);
-            put(LocaleProvider.ZH_HK, Locale.TRADITIONAL_CHINESE);
-            put(LocaleProvider.EN, Locale.ENGLISH);
-            put(LocaleProvider.JA, Locale.JAPAN);
-            put(LocaleProvider.KO, Locale.KOREA);
+            put(LocaleManager.ZH_CN, Locale.SIMPLIFIED_CHINESE);
+            put(LocaleManager.ZH_TW, Locale.TRADITIONAL_CHINESE);
+            put(LocaleManager.ZH_HK, Locale.TRADITIONAL_CHINESE);
+            put(LocaleManager.EN, Locale.ENGLISH);
+            put(LocaleManager.JA, Locale.JAPAN);
+            put(LocaleManager.KO, Locale.KOREA);
         }
     };
 

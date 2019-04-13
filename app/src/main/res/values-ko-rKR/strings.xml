@@ -2,4 +2,5 @@
 <resources>
     <string name="settings_language">언어 설정</string>
     <string name="follow_system">시스템 따르기</string>
+    <string name="save">저장</string>
 </resources>

@@ -8,4 +8,6 @@
     <string name="japanese" translatable="false">日本語</string>
     <string name="english" translatable="false">English</string>
     <string name="korean" translatable="false">한국어</string>
+    <string name="show_dialog" translatable="false">显示对话框</string>
+    <string name="save">保存</string>
 </resources>

@@ -2,4 +2,5 @@
 <resources>
     <string name="settings_language">言語の設定</string>
     <string name="follow_system">システムに従う</string>
+    <string name="save">ほぞん</string>
 </resources>

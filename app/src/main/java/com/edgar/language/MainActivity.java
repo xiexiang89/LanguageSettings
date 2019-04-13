@@ -27,8 +27,8 @@ public class MainActivity extends LocaleActivity {
 
     @Override
     public void onLocaleChanged(Locale locale) {
-        super.onLocaleChanged(locale);
         setTitle(R.string.settings_language);
+        mSettingLanguageBtn.setTextLocale(locale);
         mSettingLanguageBtn.setText(R.string.settings_language);
     }
 }
