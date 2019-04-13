@@ -1,10 +1,10 @@
 package com.edgar.language.lib;
 
-import com.edgar.language.lib.LocaleManager;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import static com.edgar.language.lib.Utils.generateLocaleId;
 
 /**
  * Created by Edgar on 2018/12/21.
@@ -24,16 +24,12 @@ class LocaleFactory {
 
     static Locale createLocale(String language, String country) {
         country = country == null ? "" : country.toUpperCase();
-        final String localeName = generateLocaleName(language, country);
-        Locale locale = LOCALE_MAP.get(localeName);
+        final String localeId = generateLocaleId(language, country);
+        Locale locale = LOCALE_MAP.get(localeId);
         if (locale == null) {
             locale = new Locale(language,country);
-            LOCALE_MAP.put(localeName, locale);
+            LOCALE_MAP.put(localeId, locale);
         }
         return locale;
-    }
-
-    private static String generateLocaleName(String language, String country) {
-        return country.length() == 0 ? language : language + "_" + country;
     }
 }

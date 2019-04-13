@@ -15,6 +15,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static com.edgar.language.lib.Utils.SEPARATOR;
+import static com.edgar.language.lib.Utils.generateLocaleId;
+
 /**
  * Created by Edgar on 2018/12/19.
  */
@@ -25,9 +28,8 @@ public class LocaleManager {
     private static final String LOCALE_SETTINGS_NAME = "locale_settings";
     private static final String LOCALE_LANGUAGE = "language";
     private static final String LOCALE_COUNTRY = "country";
-    private static final String SEPARATOR = "_";
+    private static final String FOLLOW_SYSTEM = "follow_system";
 
-    static final String FOLLOW_SYSTEM = "follow_system";
     static final String ZH_CN = "zh_CN";
     static final String ZH_HK = "zh_HK";
     static final String ZH_TW = "zh_TW";
@@ -84,13 +86,9 @@ public class LocaleManager {
                 .putString(LOCALE_COUNTRY, country).apply();
     }
 
-    private String formatterLocale(String language, String country) {
-        return TextUtils.isEmpty(country) ? language : language + SEPARATOR+ country;
-    }
-
     private LocaleInfo createLocaleInfo(String language, String country) {
-        String id = formatterLocale(language,country);
-        return new LocaleInfo(id, ResourceUtils.getStringId(id),LocaleFactory.createLocale(language,country),false);
+        String id = generateLocaleId(language,country);
+        return new LocaleInfo(id, Utils.getStringId(id),LocaleFactory.createLocale(language,country),false);
     }
 
     private LocaleInfo createSystemLocaleInfo(Locale locale) {
