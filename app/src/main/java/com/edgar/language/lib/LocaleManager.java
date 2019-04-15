@@ -42,7 +42,6 @@ public class LocaleManager {
     private List<LocaleInfo> mLocaleList;
     private final ArrayList<OnLocaleChangedListener> mListeners = new ArrayList<>();
     private LocaleInfo mLocaleInfo;
-    private boolean isFollowSystem;
 
     public static LocaleManager getInstance() {
         return SingleHolder.INSTANCE;
@@ -71,7 +70,6 @@ public class LocaleManager {
             String country = mLocalePreferences.getString(LOCALE_COUNTRY,"");
             if (TextUtils.isEmpty(language)) {
                 mLocaleInfo = createSystemLocaleInfo(getSystemLocale());
-                isFollowSystem = true;
             } else {
                 mLocaleInfo = createLocaleInfo(language,country);
             }
@@ -96,14 +94,11 @@ public class LocaleManager {
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
-        Log.d(TAG,"System switch locale:"+newConfig.locale.toString());
-        Locale locale = LocaleCompatUtils.getLocale(newConfig);
+        Log.d(TAG,"System locale:"+newConfig.locale.toString());
+        Log.d(TAG,"App locale:"+mResource.getConfiguration().locale.toString());
         Resources.getSystem().getConfiguration().setTo(newConfig);
-//        updateResourceLocale(Resources.getSystem(),locale);
-        if (isFollowSystem) {
-            mLocaleInfo = createSystemLocaleInfo(locale);
-            mResource.getConfiguration().setTo(newConfig);
-//            updateResourceLocale(mResource,locale);
+        if (!mLocaleInfo.isFollowSystem) {
+            updateResourceLocale(mResource, mLocaleInfo.locale);
         }
     }
 
@@ -168,7 +163,6 @@ public class LocaleManager {
     public void setLocale(LocaleInfo localeInfo) {
         if (localeInfo.equals(mLocaleInfo)) return;
         final Locale locale = localeInfo.locale;
-        isFollowSystem = localeInfo.isFollowSystem;
         mLocaleInfo = localeInfo;
         saveLocaleInfoToCache(localeInfo);
         updateResourceLocale(mResource, locale);
