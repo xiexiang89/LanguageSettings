@@ -64,7 +64,7 @@ public class LocaleManager {
 
     private LocaleManager() { }
 
-    private Locale getLocaleInfoFromCache(Context context) {
+    private LocaleInfo getLocaleInfoFromCache(Context context) {
         if (mLocaleInfo == null) {
             ensureLocalePreferences(context);
             String language = mLocalePreferences.getString(LOCALE_LANGUAGE,"");
@@ -76,7 +76,7 @@ public class LocaleManager {
                 mLocaleInfo = createLocaleInfo(language,country);
             }
         }
-        return mLocaleInfo.locale;
+        return mLocaleInfo;
     }
 
     private void saveLocaleInfoToCache(LocaleInfo localeInfo) {
@@ -98,18 +98,20 @@ public class LocaleManager {
     public void onConfigurationChanged(Configuration newConfig) {
         Log.d(TAG,"System switch locale:"+newConfig.locale.toString());
         Locale locale = LocaleCompatUtils.getLocale(newConfig);
-        updateResourceLocale(Resources.getSystem(),locale);
+        Resources.getSystem().getConfiguration().setTo(newConfig);
+//        updateResourceLocale(Resources.getSystem(),locale);
         if (isFollowSystem) {
             mLocaleInfo = createSystemLocaleInfo(locale);
-            updateResourceLocale(mResource,locale);
+            mResource.getConfiguration().setTo(newConfig);
+//            updateResourceLocale(mResource,locale);
         }
     }
 
-    public static Locale getSystemLocale() {
+    private static Locale getSystemLocale() {
         return Resources.getSystem().getConfiguration().locale;
     }
 
-    public static void updateResourceLocale(Resources res, Locale locale) {
+    private static void updateResourceLocale(Resources res, Locale locale) {
         final Configuration configuration = res.getConfiguration();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             configuration.setLocale(locale);
@@ -120,13 +122,14 @@ public class LocaleManager {
     }
 
     public Context attachBaseContext(Context base) {
-        Locale locale = getLocaleInfoFromCache(base);
-        Log.d(TAG,"locale info: "+locale.toString());
-        updateResourceLocale(base.getResources(),locale);
+        LocaleInfo localeInfo = getLocaleInfoFromCache(base);
+        if (localeInfo.isFollowSystem) return base;
+        Log.d(TAG,"locale info: "+localeInfo.localeId);
+        updateResourceLocale(base.getResources(),localeInfo.locale);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             base =  base.createConfigurationContext(base.getResources().getConfiguration());
         }
-        updateResourceLocale(base.getResources(),locale);
+        updateResourceLocale(base.getResources(),localeInfo.locale);
         return base;
     }
 

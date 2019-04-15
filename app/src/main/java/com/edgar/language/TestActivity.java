@@ -3,9 +3,12 @@ package com.edgar.language;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 
 import java.util.Locale;
@@ -45,8 +48,16 @@ public class TestActivity extends LocaleActivity {
             case R.id.show_dialog:
                 if (mDialog == null) {
                     mDialog = new AlertDialog.Builder(this).create();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        mDialog.getWindow().getDecorView().getViewTreeObserver().addOnDrawListener(new ViewTreeObserver.OnDrawListener() {
+                            @Override
+                            public void onDraw() {
+                                Log.d("TestActivity","onDraw");
+                            }
+                        });
+                    }
+                    mDialog.setMessage(mDialog.getContext().getString(R.string.settings_language));
                 }
-                mDialog.setMessage(getString(R.string.settings_language));
                 mDialog.show();
                 break;
         }
